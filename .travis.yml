@@ -1,0 +1,12 @@
+language: node_js
+node_js: node
+install:
+- npm install
+
+deploy:
+  provider: npm
+  email: folkvir@outlook.fr
+  api_key: $NPM_KEY
+  on:
+    tags: true
+    repo: folkvir/foglet-signaling-server
