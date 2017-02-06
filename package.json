@@ -1,6 +1,6 @@
 {
   "name": "foglet-signaling-server",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "It's a simple singaling server",
   "main": "signaling-server.js",
   "scripts": {
@@ -24,6 +24,7 @@
   "homepage": "https://github.com/folkvir/foglet-signaling-server#README",
   "dependencies": {
     "express": "^4.14.0",
-    "socket.io": "^1.5.0"
+    "lodash": "^4.17.4",
+    "socket.io": "^1.7.2"
   }
 }
