@@ -16,6 +16,7 @@ module.exports = (app, log) => {
   		//log.info('A user join the room : ' + room);
   		//log.info(socket.id);
   		socket.join(room);
+			socket.emit('joinedRoom', room);
   	});
     socket.on("new",function(data){
           let room = data.room;
