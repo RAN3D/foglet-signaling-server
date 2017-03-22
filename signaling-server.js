@@ -1,6 +1,7 @@
 var http = require('http');
 var io = require('socket.io');
 var _ = require('lodash');
+var LRU = require("lru-cache");
 
 module.exports = (app, log) => {
     var httpServer = http.Server(app);
@@ -8,20 +9,28 @@ module.exports = (app, log) => {
     var port = process.env.PORT || 3000;
     let number = 0;
     let clients = {};
+    const time2wait = 5 * 60 * 1000;
+    let cache = new LRU({
+      max: Infinity,
+      maxAge: time2wait
+    });
+
+    setInterval(() => {
+      cache.prune();
+      console.log('[Signaling] We pruned old entries. Cache size: ', cache.length);
+    }, time2wait)
 
     ioServer.on('connection', function(socket) {
         number++;
-        console.log('A user is connected :', number);
         socket.on("joinRoom", function(room) {
-						console.log(room);
-            console.log('A user join the room : ' + room.room);
+            console.log('[Signaling] A user join the room : ' + room.room);
             socket.join(room.room);
             socket.emit('joinedRoom', room);
         });
         socket.on("new", function(data) {
           let room = data.room;
           let offer = data.offer;
-          clients[data.offer.tid] = socket;
+          cache.set(data.offer.tid, socket);
 
           let c = ioServer.sockets.adapter.rooms[room+'-connected'] && ioServer.sockets.adapter.rooms[room+'-connected'].sockets;
           c = _.omit(c, socket.id);
@@ -43,15 +52,16 @@ module.exports = (app, log) => {
         socket.on("accept", function(data) {
             let room = data.room;
             let offer = data.offer;
-            if (clients[data.offer.tid]) {
+            const element = cache.get(data.offer.tid);
+            if (element) {
 								let c = ioServer.sockets.adapter.rooms[room+'-connected'] && ioServer.sockets.adapter.rooms[room+'-connected'].sockets;
 			          const cSize = Object.keys(c).length;
-                clients[data.offer.tid].emit("accept_spray", offer);
+                element.emit("accept_spray", offer);
             }
-            clients[data.offer.tid] = null;
         });
 
         socket.on('connected', (data) => {
+          console.log('[Signaling] A user is now connected');
           const room = data.room;
           let c = ioServer.sockets.adapter.rooms[room+'-connected'] && ioServer.sockets.adapter.rooms[room+'-connected'].sockets;
           socket.leave(room);
