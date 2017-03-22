@@ -9,4 +9,4 @@ deploy:
   api_key: $NPM_KEY
   on:
     tags: true
-    repo: ran3d/foglet-signaling-server
+    repo: RAN3D/foglet-signaling-server
