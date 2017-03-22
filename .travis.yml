@@ -9,4 +9,4 @@ deploy:
   api_key: $NPM_KEY
   on:
     tags: true
-    repo: folkvir/foglet-signaling-server
+    repo: ran3d/foglet-signaling-server
