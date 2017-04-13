@@ -1,5 +1,5 @@
 # Foglet - Signaling Server
-[![Build Status](https://travis-ci.org/folkvir/foglet-signaling-server.svg?branch=master)](https://travis-ci.org/folkvir/foglet-signaling-server)
+[![Build Status](https://travis-ci.org/RAN3D/foglet-signaling-server.svg?branch=master)](https://travis-ci.org/folkvir/foglet-signaling-server)
 
 Keywords: Simple Signaling server, foglet-core
 
