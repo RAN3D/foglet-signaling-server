@@ -23,6 +23,7 @@
   },
   "homepage": "https://github.com/folkvir/foglet-signaling-server#README",
   "dependencies": {
+    "cors": "^2.8.3",
     "express": "^4.14.0",
     "lodash": "^4.17.4",
     "lru-cache": "^4.0.2",
