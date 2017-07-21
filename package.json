@@ -4,7 +4,8 @@
   "description": "It's a simple singaling server",
   "main": "signaling-server.js",
   "scripts": {
-    "start": "node express-signaling-server.js"
+    "start": "node express-signaling-server.js",
+    "wstart": "powershell ./start.ps1"
   },
   "repository": {
     "type": "git",

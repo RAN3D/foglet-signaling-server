@@ -1,11 +1,11 @@
 var http = require('http');
 var io = require('socket.io');
 var _ = require('lodash');
-var LRU = require("lru-cache");
+var Cache = require('./cache.js');
 var debug = require('debug')('signaling');
 
 var logger = function (...args){
-	debug('%O', ...args);
+	debug(...args);
 }
 
 module.exports = (app, log) => {
@@ -15,42 +15,27 @@ module.exports = (app, log) => {
     let number = 0;
     let clients = {};
     const time2wait = 5 * 60 * 1000;
-    let cache = new LRU({
-      max: Infinity,
-      maxAge: time2wait
-    });
 
-		function set(key, src, dest){
-			const has = cache.has(key);
-			if(has && src === null){
-				cache.set(key, {
-					source:cache.get(key).source,
-					dest
-				});
-			} else if(!has && dest === null) {
-				cache.set(key, {
-					source:src,
-					dest:null
-				});
-			}
-		}
-
-    setInterval(() => {
-      cache.prune();
-      logger('We pruned old entries. Cache size: ', cache.length);
-    }, time2wait)
+    const cache = new Cache({
+      prune: true, // periodically prune old message
+      lru:{
+        max: Infinity,
+        maxAge: time2wait
+      }, // lru options
+      logger // logger to log all message
+    })
 
     ioServer.on('connection', function(socket) {
         number++;
         socket.on("joinRoom", function(room) {
-            logger('[Signaling] A user join the room : ' + room.room);
+            logger('A user join the room : ' + room.room);
             socket.join(room.room);
             socket.emit('joinedRoom', room);
         });
         socket.on("new", function(data) {
           let room = data.room;
           let offer = data.offer;
-          set(data.offer.tid, socket, null);
+          cache.set(data.offer.tid, socket, null);
 
           let c = ioServer.sockets.adapter.rooms[room+'-connected'] && ioServer.sockets.adapter.rooms[room+'-connected'].sockets;
           c = _.omit(c, socket.id);
@@ -60,13 +45,14 @@ module.exports = (app, log) => {
 						//Now pick a random id to send to
 						const oldSock = cache.get(offer.tid);
 						if(oldSock.dest){
+              logger
 							oldSock.dest.emit('new_spray', offer);
 						} else {
 							const randomInt = Math.floor(Math.random() * cSize) + 1;
 							const id = _.keys(c)[randomInt - 1];
 							let sock = ioServer.sockets.connected[id];
 							sock.emit('new_spray', offer);
-							set(offer.tid, null, sock);
+							cache.set(offer.tid, null, sock);
 						}
           } else {
             // it means there is no one connected in the room, we have to place this person into the connected room
