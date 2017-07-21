@@ -13,39 +13,32 @@ class Cache {
       logger: function(...args) {
         console.log(...args);
       }
-    });
+    }, options);
 
     this.cache = new LRU(this.options.lru);
 
     if(this.options.prune){
       this.interval = setInterval(() => {
-        cache.prune();
+        this.cache.prune();
         this.log('We pruned old entries. Cache size: ', this.cache.length);
       }, this.options.lru.maxAge);
     }
   }
 
   get(...args){
-    this.log('Get entry: ', ...args);
     return this.cache.get(...args);
   }
 
-  set(key, src, dest){
-    this.log('Set a new entry: ', key);
-    const has = this.cache.has(key);
-    if(has && src === null){
-      this.log('* new entry has the object but has no source. Add the source to the element.');
-      this.cache.set(key, {
-        source:this.cache.get(key).source,
-        dest
-      });
-    } else if(!has && dest === null) {
-      this.log('* new entry has no source. Add to the cache with no destination.');
-      this.cache.set(key, {
-        source:src,
-        dest:null
-      });
-    }
+  set(key, elem){
+    return this.cache.set(key, elem);
+  }
+
+  delete(key){
+    return this.cache.del(key);
+  }
+
+  exist(key) {
+    return this.cache.has(key);
   }
 
   log(...args) {
