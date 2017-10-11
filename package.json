@@ -2,10 +2,11 @@
   "name": "foglet-signaling-server",
   "version": "0.3.1",
   "description": "It's a simple singaling server",
-  "main": "signaling-server.js",
+  "main": "src/signaling-server.js",
   "scripts": {
-    "start": "node express-signaling-server.js",
-    "wstart": "powershell ./start.ps1"
+    "start": "node bin/express-signaling-server.js",
+    "wstart": "powershell ./start.ps1",
+    "lint": "standard"
   },
   "repository": {
     "type": "git",
@@ -13,11 +14,12 @@
   },
   "keywords": [
     "foglet",
-    "Signaling",
-    "Server",
+    "signaling server",
+    "fog computing",
+    "WebRTC",
     "Spray"
   ],
-  "author": "GRALL ARNAUD",
+  "author": "Anraud Grall",
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/folkvir/foglet-signaling-server/issues"
@@ -29,5 +31,14 @@
     "lodash": "^4.17.4",
     "lru-cache": "^4.0.2",
     "socket.io": "^1.7.2"
+  },
+  "devDependencies": {
+    "standard": "^10.0.3"
+  },
+  "standard": {
+    "env": [
+      "node",
+      "jest"
+    ]
   }
 }
