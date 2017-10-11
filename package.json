@@ -1,6 +1,6 @@
 {
   "name": "foglet-signaling-server",
-  "version": "0.3.1",
+  "version": "0.3.2",
   "description": "It's a simple singaling server",
   "main": "src/signaling-server.js",
   "scripts": {
