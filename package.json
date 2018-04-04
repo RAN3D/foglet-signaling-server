@@ -5,6 +5,9 @@
   "main": "src/signaling-server.js",
   "scripts": {
     "start": "node bin/express-signaling-server.js",
+    "cors": "node bin/express-signaling-server-cors.js",
+    "localstart": "HOST=localhost PORT=3000 npm start",
+    "localcors": "HOST=localhost PORT=3000 npm run cors",
     "wstart": "powershell ./start.ps1",
     "lint": "standard"
   },
@@ -26,14 +29,14 @@
   },
   "homepage": "https://github.com/folkvir/foglet-signaling-server#README",
   "dependencies": {
-    "cors": "^2.8.3",
-    "express": "^4.14.0",
-    "lodash": "^4.17.4",
-    "lru-cache": "^4.0.2",
-    "socket.io": "^1.7.2"
+    "cors": "^2.8.4",
+    "express": "^4.16.3",
+    "lodash": "^4.17.5",
+    "lru-cache": "^4.1.2",
+    "socket.io": "^2.1.0"
   },
   "devDependencies": {
-    "standard": "^10.0.3"
+    "standard": "^11.0.1"
   },
   "standard": {
     "env": [

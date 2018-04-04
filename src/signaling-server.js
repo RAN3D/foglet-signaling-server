@@ -4,14 +4,17 @@ const _ = require('lodash')
 const Cache = require('./cache.js')
 const debug = require('debug')('signaling')
 
+var os = require('os')
+var ifaces = os.networkInterfaces()
+
 const logger = (...args) => {
   debug(...args)
 }
 
-module.exports = (app, log) => {
+module.exports = (app, log, host, port, iooptions) => {
   var httpServer = http.Server(app)
-  var ioServer = io(httpServer)
-  var port = process.env.PORT || 3000
+  var ioServer = io(httpServer, iooptions)
+  ioServer.set('origins', `http://${host}:${port}`)
   let number = 0
   const time2wait = 5 * 60 * 1000
 
@@ -108,6 +111,27 @@ module.exports = (app, log) => {
   })
 
   httpServer.listen(port, () => {
-    logger('HTTP Server listening on port ' + port)
+    // https://stackoverflow.com/a/8440736
+    Object.keys(ifaces).forEach(function (ifname) {
+      var alias = 0
+
+      ifaces[ifname].forEach(function (iface) {
+        if (iface.family !== 'IPv4' || iface.internal !== false) {
+          // skip over internal (i.e. 127.0.0.1) and non-ipv4 addresses
+          return
+        }
+
+        if (alias >= 1) {
+          // this single interface has multiple ipv4 addresses
+          console.log('Running on : ', `${ifname + ':' + alias} => ${iface.address}:${port}`)
+          console.log('Or running on: ', `${host}:${port}`)
+        } else {
+          // this interface has only one ipv4 adress
+          console.log('Running on : ', `${ifname} => ${iface.address}:${port}`)
+          console.log('Or running on: ', `${host}:${port}`)
+        }
+        ++alias
+      })
+    })
   })
 }
