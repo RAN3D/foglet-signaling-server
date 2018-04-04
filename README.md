@@ -35,7 +35,3 @@ module.exports = function (config) {
 	})
 };
 ```
-
-## Author
-
-**Grall Arnaud (Folkvir)**
