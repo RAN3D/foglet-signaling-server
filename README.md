@@ -38,4 +38,4 @@ module.exports = function (config) {
 
 ## Author
 
-**Grall Arnaud (Folkvir)** Master student at University of Nantes
+**Grall Arnaud (Folkvir)**
