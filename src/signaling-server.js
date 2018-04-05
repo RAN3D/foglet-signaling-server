@@ -14,7 +14,7 @@ const logger = (...args) => {
 module.exports = (app, log, host, port, iooptions) => {
   var httpServer = http.Server(app)
   var ioServer = io(httpServer, iooptions)
-  ioServer.set('origins', `http://${host}:${port}`)
+  // ioServer.set('origins', `http://${host}:${port}`)
   let number = 0
   const time2wait = 5 * 60 * 1000
 
