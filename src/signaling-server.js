@@ -11,9 +11,23 @@ const logger = (...args) => {
   debug(...args)
 }
 
-module.exports = (app, log, host, port, iooptions) => {
-  var httpServer = http.Server(app)
-  var ioServer = io(httpServer, iooptions)
+const DEFAULT_IO_OPTIONS = {
+  origins: '*'
+}
+
+module.exports = (app, log, host, port, ioServer2 = undefined, iooptions, httpServer2) => {
+  var httpServer
+  if (httpServer2) {
+    httpServer = httpServer2
+  } else {
+    httpServer = http.Server(app)
+  }
+  var ioServer
+  if (ioServer2) {
+    ioServer = ioServer2
+  } else {
+    ioServer = io(httpServer, _.merge(DEFAULT_IO_OPTIONS, iooptions))
+  }
   // ioServer.set('origins', `http://${host}:${port}`)
   let number = 0
   const time2wait = 5 * 60 * 1000
@@ -41,9 +55,9 @@ module.exports = (app, log, host, port, iooptions) => {
       let offer = data.offer
 
       if (cache.exist(offer.tid)) {
-            // if this offer already exists then send this offer to the chosen peer.
+        // if this offer already exists then send this offer to the chosen peer.
         const chosen = cache.get(offer.tid)
-            // if the peer is already in connected room do nothing !
+        // if the peer is already in connected room do nothing !
         let c = ioServer.sockets.adapter.rooms[room + '-connected'] && ioServer.sockets.adapter.rooms[room + '-connected'].sockets
         if (!_.has(c, socket.id)) {
           logger('[NEW3] TID: ', offer.tid, 'Offer from:  ', socket.peerId, ' sent to: ', chosen.dest.peerId)
@@ -80,7 +94,6 @@ module.exports = (app, log, host, port, iooptions) => {
     })
 
     socket.on('accept', data => {
-      let room = data.room
       let offer = data.offer
       if (cache.exist(offer.tid)) {
         // send the accepted offer to its source if the peer is no connected
