@@ -22,7 +22,7 @@
     "WebRTC",
     "Spray"
   ],
-  "author": "Anraud Grall",
+  "author": "Arnaud Grall",
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/folkvir/foglet-signaling-server/issues"

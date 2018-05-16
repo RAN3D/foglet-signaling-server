@@ -9,12 +9,12 @@ const port = parseInt(process.env.PORT) || 3000
 console.log('Host: ', host)
 console.log('Port: ', port)
 
-const iooptions = { origins: '*:*'}
+const iooptions = { origins: '*:*' }
 
 app.use(cors({
   origin: function (origin, callback) {
     console.log(origin)
-    var allowed = [`http://${host}:${port}`].indexOf((origin || '').toLowerCase()) !== -1
+    var allowed = [`http://${host}:${port}`, `https://${host}:${port}`].indexOf((origin || '').toLowerCase()) !== -1
     callback(null, allowed)
   }
 }))

@@ -1,1 +1,1 @@
-web: HOST=signaling.herokuapp.com npm start
+web: HOST=signaling.herokuapp.com npm cors
