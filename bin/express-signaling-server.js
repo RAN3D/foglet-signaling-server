@@ -12,4 +12,4 @@ app.get('/', (req, res) => {
   res.sendFile(path.resolve(__dirname, 'index.html'))
 })
 
-signserver(app, console.log, host, port)
+signserver(app, console.log, host, port, null, {origins: '*:*'})
