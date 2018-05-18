@@ -28,7 +28,6 @@ module.exports = (app, log, host, port, ioServer2 = undefined, iooptions, httpSe
   } else {
     ioServer = io(httpServer, _.merge(DEFAULT_IO_OPTIONS, iooptions))
   }
-  // ioServer.set('origins', `http://${host}:${port}`)
   let number = 0
   const time2wait = 5 * 60 * 1000
 
@@ -109,11 +108,6 @@ module.exports = (app, log, host, port, ioServer2 = undefined, iooptions, httpSe
       socket.leave(room)
       socket.join(room + '-connected')
       socket.emit('connected', data)
-      // can now delete the entry in the cache.
-      let entry = cache.cache.values().filter(elem => elem.sourceId === socket.peerId)
-      if (entry.length > 0) {
-        cache.delete(entry[0].key)
-      }
     })
 
     socket.on('disconnect', room => {

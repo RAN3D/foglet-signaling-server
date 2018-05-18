@@ -3,8 +3,261 @@
   <head>
     <meta charset="utf-8">
     <title>Foglet signaling server</title>
+    <style>
+      body {
+        background-color: white;
+      }
+
+      #canvas {
+        position:relative;
+        display: block;
+        margin: 5px auto;
+        border: 10px solid #657;
+      }
+
+      @import url(https://fonts.googleapis.com/css?family=Roboto:700);
+      html, body{background : #FBC02D; font-family : Roboto; height: 100%; width: 100%; margin: 0;}
+
+      #holder{
+        -moz-user-select: -moz-none;
+        -khtml-user-select: none;
+        -webkit-user-select: none;
+        background: white;
+        padding: 10px;
+        width: 500px;
+        margin: 0 auto;
+        position: relative;
+        top: 25%;
+        transform: translateY(-65%);
+        box-shadow: 0px 3px 8px rgba(0,0,0,0.25);
+        border-radius: 2px;
+      }
+      .button {
+        background: #3D4C53;
+        margin : 10px auto;
+        width : 200px;
+        height : 50px;
+        overflow: hidden;
+        text-align : center;
+        transition : .2s;
+        cursor : pointer;
+        border-radius: 3px;
+        box-shadow: 0px 1px 2px rgba(0,0,0,.2);
+      }
+      .btnTwo {
+        position : relative;
+        width : 200px;
+        height : 100px;
+        margin-top: -100px;
+        padding-top: 2px;
+        background : #26A69A;
+        left : -250px;
+        transition : .3s;
+      }
+      .btnText {
+        color : white;
+        transition : .3s;
+      }
+      .btnText2 {
+        margin-top : 63px;
+        margin-right : -130px;
+        color : #FFF;
+      }
+      .button:hover .btnTwo{ /*When hovering over .button change .btnTwo*/
+        left: -130px;
+      }
+      .button:hover .btnText{ /*When hovering over .button change .btnText*/
+        margin-left : 65px;
+      }
+      .button:active { /*Clicked and held*/
+        box-shadow: 0px 5px 6px rgba(0,0,0,0.3);
+      }
+
+
+    </style>
+    <script type='text/javascript' src='/jquery/jquery.slim.min.js'></script>
   </head>
   <body>
-    <h1>The foglet signaling server is up and running!</h2>
+
+      <!-- Lets make a simple snake game
+    Tutorial:
+    http://thecodeplayer.com/walkthrough/html5-game-tutorial-make-a-snake-game-using-html5-canvas-jquery-->
+
+    <div id='holder'>
+      <h3>The <a href='https://github.com/ran3d/foglet-signaling-server.git'>foglet-signaling-server</a> is up and running!</h3>
+      <hr/>
+      <p> PS: please do not use generated ices for production purposes. This is only for tests and demonstration purposes. Ices are accessibles through <a href='/ice'>"/ice"</a> of this site. <hr/> This site is also a default signaling server for the foglet-core library. <br/> See <a href='https://github.com/ran3d/foglet-core.git'>foglet-core</a>
+      <div class="button" onclick='play()'>
+        <p class="btnText">SNAKE?</p>
+        <div class="btnTwo">
+          <p class="btnText2">GO!</p>
+        </div>
+      </div>
+    </div>
+    <canvas id="canvas" width="350" height="350" style="display:none"></canvas>
+
   </body>
+  <script type='text/javascript'>
+  //$('#canvas').hide()
+  function play() {
+    $('#canvas').show()
+    //Canvas stuff
+    var canvas = $("#canvas")[0];
+    var ctx = canvas.getContext("2d");
+    var w = $("#canvas").width();
+    var h = $("#canvas").height();
+
+    //Lets save the cell width in a variable for easy control
+    var cw = 10;
+    var d;
+    var food;
+    var score;
+     var level;
+
+    //Lets create the snake now
+    var snake_array; //an array of cells to make up the snake
+
+    function init()
+    {
+      d = "right"; //default direction
+      create_snake();
+      create_food(); //Now we can see the food particle
+      //finally lets display the score
+      score = 0;
+       level = 1;
+
+      //Lets move the snake now using a timer which will trigger the paint function
+      //every 60ms
+      if(typeof game_loop != "undefined") clearInterval(game_loop);
+      game_loop = setInterval(paint, 100);
+    }
+    init();
+
+    function create_snake()
+    {
+      var length = 5; //Length of the snake
+      snake_array = []; //Empty array to start with
+      for(var i = length-1; i>=0; i--)
+      {
+        //This will create a horizontal snake starting from the top left
+        snake_array.push({x: i, y:0});
+      }
+    }
+
+    //Lets create the food now
+    function create_food()
+    {
+      food = {
+        x: Math.round(Math.random()*(w-cw)/cw),
+        y: Math.round(Math.random()*(h-cw)/cw),
+      };
+      //This will create a cell with x/y between 0-44
+      //Because there are 45(450/10) positions accross the rows and columns
+    }
+
+    //Lets paint the snake now
+    function paint()
+    {
+      //To avoid the snake trail we need to paint the BG on every frame
+      //Lets paint the canvas now
+      ctx.fillStyle = "white";
+      ctx.fillRect(0, 0, w, h);
+      ctx.strokeStyle = "black";
+      ctx.strokeRect(0, 0, w, h);
+
+      //The movement code for the snake to come here.
+      //The logic is simple
+      //Pop out the tail cell and place it infront of the head cell
+      var nx = snake_array[0].x;
+      var ny = snake_array[0].y;
+      //These were the position of the head cell.
+      //We will increment it to get the new head position
+      //Lets add proper direction based movement now
+      if(d == "right") nx++;
+      else if(d == "left") nx--;
+      else if(d == "up") ny--;
+      else if(d == "down") ny++;
+
+      //Lets add the game over clauses now
+      //This will restart the game if the snake hits the wall
+      //Lets add the code for body collision
+      //Now if the head of the snake bumps into its body, the game will restart
+      if(nx == -1 || nx == w/cw || ny == -1 || ny == h/cw || check_collision(nx, ny, snake_array))
+      {
+        //restart game
+        //init();
+        //Lets organize the code a bit now.
+        return;
+      }
+
+      //Lets write the code to make the snake eat the food
+      //The logic is simple
+      //If the new head position matches with that of the food,
+      //Create a new head instead of moving the tail
+      if(nx == food.x && ny == food.y)
+      {
+        var tail = {x: nx, y: ny};
+        score++;
+
+        //Create new food
+        create_food();
+      }
+      else
+      {
+        var tail = snake_array.pop(); //pops out the last cell
+        tail.x = nx; tail.y = ny;
+      }
+      //The snake can now eat the food.
+
+      snake_array.unshift(tail); //puts back the tail as the first cell
+
+      for(var i = 0; i < snake_array.length; i++)
+      {
+        var c = snake_array[i];
+        //Lets paint 10px wide cells
+        paint_cell(c.x, c.y, "blue");
+      }
+
+      //Lets paint the food
+      paint_cell(food.x, food.y, "red");
+      //Lets paint the score
+      var score_text = "Score: " + score;
+       var level_text = "Level: " + level;
+      ctx.fillText(score_text, 5, h-5);
+       ctx.fillText(level_text, 60, h-5);
+    }
+
+    //Lets first create a generic function to paint cells
+    function paint_cell(x, y, color)
+    {
+      ctx.fillStyle = color;
+      ctx.fillRect(x*cw, y*cw, cw, cw);
+      ctx.strokeStyle = "white";
+      ctx.strokeRect(x*cw, y*cw, cw, cw);
+    }
+
+    function check_collision(x, y, array)
+    {
+      //This function will check if the provided x/y coordinates exist
+      //in an array of cells or not
+      for(var i = 0; i < array.length; i++)
+      {
+        if(array[i].x == x && array[i].y == y)
+         return true;
+      }
+      return false;
+    }
+
+    //Lets add the keyboard controls now
+    $(document).keydown(function(e){
+      var key = e.which;
+      //We will add another clause to prevent reverse gear
+      if(key == "37" && d != "right") d = "left";
+      else if(key == "38" && d != "down") d = "up";
+      else if(key == "39" && d != "left") d = "right";
+      else if(key == "40" && d != "up") d = "down";
+      //The snake is now keyboard controllable
+    })
+  }
+  </script>
 </html>

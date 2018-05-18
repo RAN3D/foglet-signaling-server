@@ -16,13 +16,6 @@ class Cache {
     }, options)
 
     this.cache = new LRU(this.options.lru)
-
-    if (this.options.prune) {
-      this.interval = setInterval(() => {
-        this.cache.prune()
-        this.log('We pruned old entries. Cache size: ', this.cache.length)
-      }, this.options.lru.maxAge)
-    }
   }
 
   get (...args) {
