@@ -60,6 +60,7 @@ module.exports = (app, log, host, port, ioServer2 = undefined, iooptions, httpSe
       let room = data.room
       let offer = data.offer
       if (cache.exist(offer.tid)) {
+        logger('The entry already exists: %s', offer.tid)
         // if this offer already exists then send this offer to the chosen peer.
         const chosen = cache.get(offer.tid)
         // if the peer is already in connected room do nothing !
@@ -69,6 +70,7 @@ module.exports = (app, log, host, port, ioServer2 = undefined, iooptions, httpSe
           chosen.dest.emit('new_spray', offer)
         }
       } else {
+        logger('The entry does not already exists: %s', offer.tid)
         // choose a peer to send this offer
         // if there is no peer or already one peer in the room just send a 'connected' message
         let c = ioServer.sockets.adapter.rooms[room + '-connected'] && ioServer.sockets.adapter.rooms[room + '-connected'].sockets
@@ -95,6 +97,8 @@ module.exports = (app, log, host, port, ioServer2 = undefined, iooptions, httpSe
               destId: sock.peerId,
               dest: sock
             })
+          } else {
+            logger('[NEW2] Not Sent! From: %s, Dest: %s', socket.peerId, sock.peerId)
           }
         }
       }

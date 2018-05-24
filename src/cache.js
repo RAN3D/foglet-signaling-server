@@ -14,7 +14,6 @@ class Cache {
         console.log(...args)
       }
     }, options)
-
     this.cache = new LRU(this.options.lru)
   }
 
