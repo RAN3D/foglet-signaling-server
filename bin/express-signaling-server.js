@@ -4,6 +4,7 @@ const app = express()
 const fs = require('fs')
 const signserver = require('../src/signaling-server.js')
 const Twilio = require('twilio')
+const cors = require('cors')
 
 const host = process.env.HOST || 'localhost'
 const port = parseInt(process.env.PORT) || 3000
@@ -11,7 +12,7 @@ console.log('Host: ', host)
 console.log('Port: ', port)
 
 const twilioconfig = JSON.parse(fs.readFileSync(path.resolve(__dirname, 'twilio_config.json'), 'utf-8'))
-
+app.use(cors())
 app.use('/jquery', express.static(path.join(__dirname, '../node_modules/jquery/dist/')))
 
 app.get('/', (req, res) => {
