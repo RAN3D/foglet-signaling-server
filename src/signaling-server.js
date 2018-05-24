@@ -43,15 +43,20 @@ module.exports = (app, log, host, port, ioServer2 = undefined, iooptions, httpSe
   ioServer.on('connection', socket => {
     number++
     socket.on('joinRoom', room => {
+      socket.peerId = room.id
       logger('A user join the room : ' + room.room)
       socket.join(room.room)
-      let c = ioServer.sockets.adapter.rooms[room.room + '-connected'] && ioServer.sockets.adapter.rooms[room.room + '-connected'].sockets
-      c = _.omit(c, socket.id)
-      socket.emit('joinedRoom', {room: room.room, connected: Object.keys(c).length === 0})
+      let connected = false
+      if (ioServer.sockets.adapter.rooms[room.room + '-connected'] === undefined) {
+        connected = true
+        socket.join(room.room + '-connected')
+        socket.leave(room.room)
+      }
+      socket.emit('joinedRoom', {room: room.room, connected})
     })
     socket.on('new', data => {
       // add a peer attribute to the socket
-      socket.peerId = data.offer.peer
+      socket.peerId = data.id
       let room = data.room
       let offer = data.offer
       if (cache.exist(offer.tid)) {
@@ -67,11 +72,9 @@ module.exports = (app, log, host, port, ioServer2 = undefined, iooptions, httpSe
         // choose a peer to send this offer
         // if there is no peer or already one peer in the room just send a 'connected' message
         let c = ioServer.sockets.adapter.rooms[room + '-connected'] && ioServer.sockets.adapter.rooms[room + '-connected'].sockets
-        console.log(c, socket.peerId, socket.id)
         c = _.omit(c, socket.id)
         const cSize = Object.keys(c).length
         if (cSize === 0) {
-          console.log('directly connected')
           logger('[NEW1] TID: ', offer.tid, 'There is only one person connected in this room:  ', room, offer.peer)
           // it means there is no one connected in the room, we have to place this person into the connected room
           socket.join(room + '-connected')
@@ -83,7 +86,7 @@ module.exports = (app, log, host, port, ioServer2 = undefined, iooptions, httpSe
           const id = _.keys(c)[randomInt - 1]
           let sock = ioServer.sockets.connected[id]
           if (sock.peerId !== socket.peerId) {
-            logger('[NEW2] TID: ', offer.tid, 'Offer from:  ', offer.peerId, ' sent to: ', sock.peerId)
+            logger('[NEW2] TID: ', offer.tid, 'Offer from:  ', socket.peerId, ' sent to: ', sock.peerId)
             sock.emit('new_spray', offer)
             cache.set(data.offer.tid, {
               key: data.offer.tid,
@@ -98,6 +101,7 @@ module.exports = (app, log, host, port, ioServer2 = undefined, iooptions, httpSe
     })
 
     socket.on('accept', data => {
+      socket.peerId = data.id
       let offer = data.offer
       if (cache.exist(offer.tid)) {
         // send the accepted offer to its source if the peer is not connected
@@ -108,6 +112,7 @@ module.exports = (app, log, host, port, ioServer2 = undefined, iooptions, httpSe
     })
 
     socket.on('connected', data => {
+      socket.peerId = data.id
       const room = data.room
       logger('[CONNECTED] User ', socket.peerId, ' is now connected on the room: ' + room)
       socket.leave(room)
